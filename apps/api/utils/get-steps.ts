@@ -25,6 +25,7 @@ type StepLocation = {
   steps: Step[];
   currentBlock: string;
   currentSuperBlock: string;
+  currentBlockLabel?: string;
 };
 
 export const getSteps = async (
@@ -76,6 +77,7 @@ export const getSteps = async (
   return {
     steps: steps,
     currentBlock: blockMetaData.name,
-    currentSuperBlock: introData[sup]?.title
+    currentSuperBlock: introData[sup]?.title,
+    currentBlockLabel: blockMetaData.blockLabel
   };
 };

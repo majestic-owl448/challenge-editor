@@ -17,6 +17,7 @@ const stepBasedSuperblocks = [
 const taskBasedSuperblocks = [
   'a2-english-for-developers',
   'b1-english-for-developers',
+  'a1-professional-spanish',
   'a2-professional-spanish',
   'a2-professional-chinese',
   'a1-professional-chinese'
@@ -27,6 +28,7 @@ const ChapterBasedBlock = () => {
   const [loading, setLoading] = useState(false);
   const [blockName, setBlockName] = useState('');
   const [superBlockName, setSuperBlockName] = useState('');
+  const [blockLabel, setBlockLabel] = useState('');
   const [items, setItems] = useState([] as ChallengeData[]);
   const params = useParams() as {
     superblock: string;
@@ -50,6 +52,7 @@ const ChapterBasedBlock = () => {
           setItems(superblocks.steps);
           setBlockName(superblocks.currentBlock);
           setSuperBlockName(superblocks.currentSuperBlock);
+          setBlockLabel(superblocks.currentBlockLabel || '');
         },
         (error: Error) => {
           setLoading(false);
@@ -69,9 +72,11 @@ const ChapterBasedBlock = () => {
     params.superblock
   );
 
-  const isTaskBasedSuperblock = taskBasedSuperblocks.includes(
-    params.superblock
-  );
+  const isWorkshopBlock = blockLabel === 'workshop' || isStepBasedSuperblock;
+
+  // quiz blocks have a single challenge and don't use task-style scripts
+  const isTaskBasedBlock =
+    taskBasedSuperblocks.includes(params.superblock) && blockLabel !== 'quiz';
 
   return (
     <div>
@@ -80,7 +85,7 @@ const ChapterBasedBlock = () => {
       <ul className='step-grid'>
         {items.map((challenge, i) => (
           <li key={challenge.name}>
-            {!isStepBasedSuperblock && <span>{`${i + 1}: `}</span>}
+            {!isWorkshopBlock && <span>{`${i + 1}: `}</span>}
             <Link
               to={`/${params.superblock}/${params.block}/${challenge.path}`}
             >
@@ -94,14 +99,52 @@ const ChapterBasedBlock = () => {
       </p>
       <hr />
       <h2>Project Controls</h2>
-      {isStepBasedSuperblock ? (
-        <p>
-          Looking to add, remove, or edit steps?{' '}
-          <Link to={`/${params.superblock}/${params.block}/_tools`}>
-            Use the step tools.
-          </Link>
-        </p>
-      ) : isTaskBasedSuperblock ? (
+      {isWorkshopBlock ? (
+        <>
+          <p>
+            Looking to add or remove workshop steps? Navigate to <br />
+            <code>
+              curriculum/challenges/english/blocks
+              {`/${params.block}`}
+            </code>
+            <br />
+            in your terminal and run the following commands:
+          </p>
+          <ul>
+            <li>
+              <code>pnpm create-next-step</code>: Create a new step at the end
+              of this workshop.
+            </li>
+            <li>
+              <code>pnpm create-empty-steps &lt;n&gt;</code>: Create{' '}
+              <code>n</code> empty steps at the end of this workshop.
+            </li>
+            <li>
+              <code>pnpm insert-step &lt;n&gt;</code>: Insert a new step at
+              position <code>n</code> in this workshop.
+            </li>
+            <li>
+              <code>pnpm delete-step &lt;n&gt;</code>: Delete step{' '}
+              <code>n</code> from this workshop.
+            </li>
+            <li>
+              <code>pnpm update-step-titles</code>: Reorder step titles after
+              changes.
+            </li>
+          </ul>
+          <p>
+            Or{' '}
+            <Link to={`/${params.superblock}/${params.block}/_tools`}>
+              use the step tools in this editor
+            </Link>
+            .
+          </p>
+          <p>
+            Refresh the page after running a command to see the changes
+            reflected.
+          </p>
+        </>
+      ) : isTaskBasedBlock ? (
         <>
           <p>
             Looking to add or remove challenges? Navigate to <br />

@@ -8,4 +8,5 @@ export interface ChallengeDataWithBlock {
   steps: ChallengeData[];
   currentBlock: string;
   currentSuperBlock: string;
+  currentBlockLabel?: string;
 }
